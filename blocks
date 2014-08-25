@@ -1,0 +1,68 @@
+use strict;
+
+# root->p->e
+#        ->b->x
+
+
+# show parent to child relationship
+my $parent_to_id = {
+	root => ['p'],
+	p => [e, b],
+	e => [],
+	b => [x],
+	x => [], # ??
+}
+
+# Actual instance in initial state
+my $instance = {
+		root => [
+			{p => 0}
+		],
+		p => [
+			{e => 0, b => 0},
+		],
+		e => [undef],
+		b => [
+			{x => 0}
+		],
+		x => [undef]
+};
+
+# child to parent relationship
+# if a given block is being repeated
+# then you need to locate its parent
+my $id_to_parent_id = {
+	p => 'root',
+	e => 'p',
+	b => 'p',
+	x => 'b'
+}
+
+# repeat p
+
+my $id = 'p';
+my $parent_id = $id_to_parent_id->{$id}; # root
+
+# reflect repetition at parent node
+my $latest_parent_idx = $#{$instance->{$parent_id}};
+
+_cascade_repeat($id);
+
+sub _cascade_repeat {
+	my $id = shift;
+
+	# capture 'template' for repeat
+	my @child_ids = @{$parent_to_id->{$id}};
+	my $latest_parent_idx = $#{$instance->{$id}};
+	$instance->{$id}->[$latest_parent_idx]->{$id}++;
+
+	foreach my $child_id (@child_ids) {
+		# build a node each node is is just a hash of child ids to counts
+		my %new_node_instance = map {$_ => 0} @{$parent_to_child->{$e}};
+		if (defined($instance->{$child_id}->[$latest_parent_idx])) {
+			$instance->{$child_id}->[$latest_parent_idx]->{$id}++;
+		}
+		$instance->
+		_cascade_repeat($child_id);
+	}
+}

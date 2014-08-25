@@ -1,0 +1,2 @@
+<?xml version ="1.0"?>
+<h xmlns:anc="anchor" ><anc:include id ="foo">xxxx</anc:include><anc:var id='x'>xxxxx</anc:var></h>

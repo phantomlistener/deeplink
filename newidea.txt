@@ -1,0 +1,43 @@
+0  1  2   3  4   5   6
+0  1  2   3  4   5   6
+<r><h></h><b><c/></b></r>
+
+r -> h
+  -> b -> c
+
+indexes after parse:
+
+r 0, 6  len=7
+h 1, 2  len=2
+b 3, 5  len=3
+c 4     len=1
+
+
+repeat b means splice in a "copy of b"
+walk through indexes below increment index by length of b (3)
+everything that is >= b's indexes (including b) gets incremented by 3. i.e.
+anything >= 3.
+
+@a = (0  1  2   3 4 5 6);
+@new_a = splice(@a, 6, 0, (3..5));
+
+0  1  2  3  4  5  6  7  8  9
+0  1  2  3  4  5  3  4  5  6
+r  h  h  b  c  b  b  c  b  r
+
+r 0, 9
+h 1, 2
+b 6, 8
+c 7
+
+repeat c
+inc. by 1 all >= 7
+
+0  1  2  3  4  5  6  7  8  9  10
+0  1  2  3  4  5  3  4  4  5  6
+r  h  h  b  c  b  b  c  c  b  r
+
+r 0, 10
+h 1, 2
+b 6, 9
+c 8

@@ -1,0 +1,2 @@
+<?xml version="1.0"?>
+<html xmlns:anc="anchor" ><head></head><body><p anc:id ="p" x="y" q='p'>this <e anc:id="e"/>is <b anc:id="b">x = <anc:var id='x'/></b> test</p></body></html>
