@@ -29,6 +29,7 @@ my %block_depths;
 my @block_id_stack;
 my %blocks;
 my $last_start_event;
+my $last_event;
 
 my @test_content = (
 '<r xmlns:anc="anchor">',
@@ -93,7 +94,7 @@ sub start {
 
 	if (defined($event->{block_id})) {
 		$last_start_event = $event;
-		new_content();
+		new_content($event);
 		$block_depths{$event->{block_depth}} = 1;
 		$current_block = $event->{block_id};
 
@@ -107,17 +108,22 @@ sub start {
 	else {
 		dhandler(@_);
 	}
+	$last_event = $event;
 }
 
 sub new_content {
+	my $event = shift;
 	push(@content, '');
 	$content_ref = \$content[$#content];
-	add_content();
+	add_content($event);
 
 	my $block_id = $last_start_event->{block_id};
-	$blocks{$block_id} = [] unless $blocks{$block_id};
+	if ($event->{type} ne 'end') {
+		$blocks{$block_id} = [] unless $blocks{$block_id};
+		push @{$blocks{$block_id}}, {cdx => $#content};
+	}
 
-	push @{$blocks{$block_id}}, {cdx => $#content};
+		warn "new_content: $block_id, $#content, " .  $event->{type};
 }
 
 sub add_content {
@@ -132,14 +138,22 @@ sub end {
 	if ($block_depths{$event->{block_depth}}) {
 
 		# Deal with the special case of empty block elements
-		#my $current_block_last_idx = scalar @{$blocks{$current_block}} - 1;
-		#my $last_idx_value = $blocks{$current_block}->[$current_block_last_idx]->{cdx};
 
-		if ($event->{string}) {
-			die unless $current_block;
+
+		if ($last_event->{type} eq 'dhandler') {
+			add_content($event);
 			push @{$blocks{$current_block}}, {cdx => $#content};
+		}
+		elsif ($last_event->{type} eq 'start') {
+			warn "end: lastevent: start $current_block, $#content";
 			new_content($event);
 		}
+		else {
+			new_content($event);
+			push @{$blocks{$current_block}}, {cdx => $#content};
+			warn "end: $current_block, $#content";
+		}
+
 		
 		$current_block = pop @block_id_stack;
 		$current_block = $block_id_stack[$#block_id_stack] if @block_id_stack;
@@ -149,6 +163,7 @@ sub end {
 	else {
 		dhandler(@_);
 	}
+	$last_event = $event;
 }
 
 sub char {dhandler(@_)}
@@ -159,7 +174,7 @@ sub cdataend {dhandler(@_)}
 sub default {dhandler(@_)}
 
 sub xmldecl {
-	my $event = event(@_);
+	my $event = event('xmldecl', @_);
 	$xmldecl .= $event->{string};
 	$content_ref = \$xmldecl;
 }
@@ -192,11 +207,11 @@ sub debuglog {
 sub dhandler {
 	my $event = event('dhandler', @_);
 	my $string = $event->{string};
-	if ($last_start_event->{}) {
+	if ($last_start_event->{type} eq 'end') {
 		new_content($event);
-		$end_block_flag = undef;
 	}
 	else {
 		add_content($event);
 	}
+	$last_event = $event;
 }
