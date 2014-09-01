@@ -1,32 +1,34 @@
 xmldecl
 <?xml version="1.0"?>
 
-start:root  : new content: no parent
+start:root  : new content:current : no parent
 <r xmlns:anc="anchor">
 
-start, start : new content: add to last start
+start, start : new content:current : add to last start
 	<a anc:id = "a">
 
-char, start : add content
+dhand, start : add content : add to last start
 abc
 
-start, char : new content: add to last start
+start, dhand : new content:current: add to last start
 <b anc:id = "b">
 
 start, start : new content : add to last start
-end, start :  new content : pop : nothing?
-<c anc:id ="c"/>
+<c anc:id ="c"
 
-char, end : new content: add to last start
+end, start :  new content : pop : nothing?
+/>
+
+dhand, end : new content: add to last start
 def
 
-end, char : add content : pop
+end, dhand : add content : pop
 </b>
 
-end, end : new content
+end, end : new content :pop
 </a>
 
 end, root : new content
 </r>
 
-char, root : add content
+dhand, root : add content
