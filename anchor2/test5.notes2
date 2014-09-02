@@ -1,0 +1,33 @@
+xmldecl  next: start root
+<?xml version="1.0"?>
+
+start:new|dhand:add|end:add+new
+
+start:root  : start:new|dhand:add|end:new
+<r xmlns:anc="anchor">
+
+start: start:new|dhand:add|end:new
+	<a anc:id = "a">
+
+dhand: start:new|dhand:add|end:new
+abc
+
+start: start:new|dhand:add|end:new
+<b anc:id = "b">
+
+start: start:new|dhand:add|end:new
+<c anc:id ="c"/>
+
+dhand: start:new|dhand:add|end:add+new
+def
+
+end start:new|dhand:add|end:add+new
+</b>
+
+end, end : new content :pop
+</a>
+
+end, root : new content
+</r>
+
+dhand, root : add content
