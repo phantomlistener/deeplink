@@ -1,8 +1,12 @@
 xmldecl  next: start root
 <?xml version="1.0"?>
 
-start:new    push
-end:add+new  pop
+start:new+add    push content to current block, add block to parent
+end:add+new      pop block stack
+dhand: add 
+
+<t>w</t>
+
 
 start:new|dhand:add|end:add+new
 
@@ -27,10 +31,12 @@ def
 end start:new|dhand:add|end:add+new
 </b>
 
-end, end : new content :pop
+end start:new|dhand:add|end:add+new
 </a>
 
-end, root : new content
+end start:new|dhand:add|end:add+new
 </r>
 
-dhand, root : add content
+dhand: start:new|dhand:add|end:add+new
+
+

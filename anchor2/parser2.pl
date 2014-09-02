@@ -2,7 +2,7 @@ use strict;
 use XML::Parser;
 use Data::Dumper;
 
-my $file = 'test5.xml';
+my $file = 'test6.xml';
 
 my $parser = XML::Parser->new(
 		Handlers => {
@@ -93,37 +93,54 @@ sub start {
 	}
 
 	if (defined($event->{block_id})) {
-		$last_start_event = $event;
-		new_content($event);
-		$block_depths{$event->{block_depth}} = 1;
-		$current_block = $event->{block_id};
+		new_add_push($event);
+		my $block_id = $event->{block_id};
+		$block_depths{$event->{block_depth}} = $block_id;
+		push @block_id_stack, $block_id;
 
-		push @block_id_stack, $current_block;
-
-		unless($event->{block_id} eq 'root') {
+		unless($block_id eq 'root') {
 			my $last_block_id_in_stack = $block_id_stack[$#block_id_stack - 1];
-			push @{$blocks{$last_block_id_in_stack}}, {block => $current_block};
+			die unless $last_block_id_in_stack;
+			push @{$blocks{$last_block_id_in_stack}}, {block => $block_id};
 		}
 	}
 	else {
 		dhandler(@_);
 	}
-	$last_event = $event;
 }
 
-sub new_content {
+sub new_add_push {
 	my $event = shift;
 	push(@content, '');
 	$content_ref = \$content[$#content];
 	add_content($event);
 
-	my $block_id = $last_start_event->{block_id};
-	if ($event->{type} ne 'end') {
+	my $block_id = $event->{block_id};
+	if ($block_id) {
 		$blocks{$block_id} = [] unless $blocks{$block_id};
 		push @{$blocks{$block_id}}, {cdx => $#content};
 	}
+}
 
-		warn "new_content: $block_id, $#content, " .  $event->{type};
+sub add_new_pop {
+	my $event = shift;
+	add_content($event);
+
+	my $block_id = $event->{block_id};
+
+	my $last_block_idx = $#{$blocks{$block_id}};
+	my $last_block_idx_idx = $blocks{$block_id}->[$last_block_idx]->{cdx} if ($last_block_idx >= 0);
+
+	unless (defined($last_block_idx_idx) && $last_block_idx_idx == $#content) {
+		push @{$blocks{$block_id}}, {cdx => $#content};
+	}
+
+
+	if ($block_id ne 'root') {
+		push(@content, '');
+		$content_ref = \$content[$#content];
+		pop @block_id_stack;
+	}
 }
 
 sub add_content {
@@ -133,37 +150,16 @@ sub add_content {
 
 sub end {
 	my $event = event('end', @_);
+	my $block_id = $block_depths{$event->{block_depth}};
 	
 	# if ($block_depths{$event->{block_depth}} && $event->{depth} > 0) {
-	if ($block_depths{$event->{block_depth}}) {
-
-		# Deal with the special case of empty block elements
-
-
-		if ($last_event->{type} eq 'dhandler') {
-			add_content($event);
-			push @{$blocks{$current_block}}, {cdx => $#content};
-		}
-		elsif ($last_event->{type} eq 'start') {
-			warn "end: lastevent: start $current_block, $#content";
-			new_content($event);
-		}
-		else {
-			new_content($event);
-			push @{$blocks{$current_block}}, {cdx => $#content};
-			warn "end: $current_block, $#content";
-		}
-
-		
-		$current_block = pop @block_id_stack;
-		$current_block = $block_id_stack[$#block_id_stack] if @block_id_stack;
-		die unless $current_block;
-
+	if ($block_id)  {
+		$event->{block_id} = $block_id;
+		add_new_pop($event);
 	}
 	else {
 		dhandler(@_);
 	}
-	$last_event = $event;
 }
 
 sub char {dhandler(@_)}
@@ -206,12 +202,5 @@ sub debuglog {
 
 sub dhandler {
 	my $event = event('dhandler', @_);
-	my $string = $event->{string};
-	if ($last_start_event->{type} eq 'end') {
-		new_content($event);
-	}
-	else {
-		add_content($event);
-	}
-	$last_event = $event;
+	add_content($event);
 }
