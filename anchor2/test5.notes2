@@ -1,6 +1,9 @@
 xmldecl  next: start root
 <?xml version="1.0"?>
 
+start:new    push
+end:add+new  pop
+
 start:new|dhand:add|end:add+new
 
 start:root  : start:new|dhand:add|end:new
