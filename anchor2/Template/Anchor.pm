@@ -3,6 +3,9 @@ package Template::Anchor;
 use strict;
 use XML::Parser;
 use Data::Dumper;
+use Template::Anchor::Logger;
+
+our $LOG = Template::Anchor::Logger->new();
 
 sub new {
 	my $class = shift;
@@ -14,7 +17,7 @@ sub new {
 	my $stream = $args{stream};
 	
 	unless ($file or $stream) {
-		# $LOG->fatal("$class needs file or stream");
+		$LOG->fatal("$class needs file or stream");
 		return undef;
 	}
 
@@ -25,6 +28,13 @@ sub new {
 
 	return undef;
 }
+
+my $xmldecl;
+my @content;
+my $content_ref;
+my %block_depths;
+my @block_id_stack;
+my %blocks;
 
 sub _do_parse {
 	my $self = shift;
@@ -61,17 +71,13 @@ sub _do_parse {
 		return undef;
 	}
 
-
-$parser->parsefile($file);
-
-my $xmldecl;
-my @content;
-my $content_ref;
-my %block_depths;
-my @block_id_stack;
-my %blocks;
-
-my $PGLOBAL;
+	$self->{
+		xmldecl => $xmldecl,
+		content => [@content],
+		blocks => {%blocks}
+	};
+	init();
+}
 
 sub init {
 	$xmldecl = '';
@@ -106,6 +112,9 @@ sub event {
 	return $event;
 }
 
+sub process_attributes {
+}
+k
 sub final {
 	dhandler(@_);
 
@@ -156,7 +165,7 @@ sub add_new_pop {
 	my $event = shift;
 	add_content($event);
 
-	my $block_id = $event->{block_id};
+	my $block_id = $event->{block_i@{$PGLOBAL->{content}}d};
 
 	my $last_block_idx = $#{$blocks{$block_id}};
 	my $last_block_idx_idx = $blocks{$block_id}->[$last_block_idx]->{cdx} if ($last_block_idx >= 0);
@@ -202,3 +211,5 @@ sub dhandler {
 	my $event = event('dhandler', @_);
 	add_content($event);
 }
+
+1;
