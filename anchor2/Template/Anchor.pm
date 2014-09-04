@@ -114,7 +114,8 @@ sub event {
 
 sub process_attributes {
 }
-k
+
+
 sub final {
 	dhandler(@_);
 
@@ -165,7 +166,7 @@ sub add_new_pop {
 	my $event = shift;
 	add_content($event);
 
-	my $block_id = $event->{block_i@{$PGLOBAL->{content}}d};
+	my $block_id = $event->{block_id};
 
 	my $last_block_idx = $#{$blocks{$block_id}};
 	my $last_block_idx_idx = $blocks{$block_id}->[$last_block_idx]->{cdx} if ($last_block_idx >= 0);
