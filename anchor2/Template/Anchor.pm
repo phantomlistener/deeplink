@@ -91,28 +91,43 @@ sub init {
 sub event {
 	my $type = shift;
 	my $p = shift;
+	my $element = shift @_;
+
 	my $string = $p->original_string();
 	my $depth = $p->depth();
-
-	my $element = shift @_;
 	my %attr = @_;
-
-	my $block_id = $attr{'anc:id'};
 	my $block_depth = $element . $depth;
 
 	my $event = {
 		string => $string,
 		element => $element,
 		attr => \%attr,
-		block_id => $block_id,
 		block_depth => $block_depth,
 		depth => $depth,
 		type => $type
 	};
+
+	if ($type eq 'start') {
+		process_attributes($event);
+	}
+
 	return $event;
 }
 
 sub process_attributes {
+	my $event = shift;
+	my %attr = %{$event->{attr}};
+	my $string = $event->{string};
+
+	if ($attr{'anc:id'}) {
+		my $block_id = $attr{'anc:id'};
+
+		$string =~ s/(.*)(\s+anc:id\s*=\s*['"])([^'"]+)(['"])(.*)/$1$5/;
+		$string =~ s/ >/>/;
+
+		$event->{string} = $string;
+		$event->{block_id} = $block_id;
+	}
 }
 
 
