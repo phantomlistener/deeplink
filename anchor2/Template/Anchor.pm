@@ -7,6 +7,11 @@ use Template::Anchor::Logger;
 
 our $LOG = Template::Anchor::Logger->new();
 
+my $ANCHOR_TAGS = {
+	'var' => 1,
+	'include' => 1
+};
+
 sub new {
 	my $class = shift;
 	my %args = @_;
@@ -127,6 +132,12 @@ sub process_attributes {
 
 		$event->{string} = $string;
 		$event->{block_id} = $block_id;
+	}
+
+	if ($attr{'xmlns:anc'}) {
+		$string =~ s/(.*)\s+xmlns:anc\s*=\s*['"][^'"]+['"](.*)/$1$2/;
+		$string =~ s/ >/>/;
+		$event->{string} = $string;
 	}
 }
 
