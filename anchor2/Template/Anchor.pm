@@ -35,14 +35,17 @@ sub new {
 }
 
 my $xmldecl;
+my $xmlend;
 my @content;
 my $content_ref;
 my %block_depths;
 my @block_id_stack;
 my %blocks;
+my $current_parse_self;
 
 sub _do_parse {
 	my $self = shift;
+	$current_parse_self = $self;
 
 	my $parser = XML::Parser->new(
 		Handlers => {
@@ -60,6 +63,7 @@ sub _do_parse {
 		}
 	);
 
+
 	# Catch XML parse failures
 	eval {
 		if ($self->{stream}) {
@@ -76,16 +80,14 @@ sub _do_parse {
 		return undef;
 	}
 
-	$self->{
-		xmldecl => $xmldecl,
-		content => [@content],
-		blocks => {%blocks}
-	};
+
 	init();
+	return 1;
 }
 
 sub init {
 	$xmldecl = '';
+	$xmlend = '';
 	@content = ();
 	$content_ref = undef;
 	%block_depths = ();
@@ -145,11 +147,16 @@ sub process_attributes {
 sub final {
 	dhandler(@_);
 
-	print $xmldecl;
-	my $i = -1;
-	my @c = map {my $s = $_; $s =~ s/\n/\\n/g ; $i++; "$i -> $s"} @content;
-	print Dumper \@c;
-	print  Dumper \%blocks;
+	$current_parse_self->{xmldecl} = $xmldecl;
+	$current_parse_self->{xmlend} = $xmlend;
+	$current_parse_self->{content} = [@content];
+	$current_parse_self->{blocks} = {%blocks};
+
+	#print $xmldecl;
+	#my $i = -1;
+	#my @c = map {my $s = $_; $s =~ s/\n/\\n/g ; $i++; "$i -> $s"} @content;
+	#print Dumper \@c;
+	#print  Dumper \%blocks;
 }
 
 sub start {
@@ -202,7 +209,10 @@ sub add_new_pop {
 	}
 
 
-	if ($block_id ne 'root') {
+	if ($block_id eq 'root') {
+		$content_ref = \$xmlend;
+	}
+	else {
 		push(@content, '');
 		$content_ref = \$content[$#content];
 		pop @block_id_stack;
