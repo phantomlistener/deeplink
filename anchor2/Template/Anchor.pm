@@ -125,6 +125,8 @@ sub process_attributes {
 	my $event = shift;
 	my %attr = %{$event->{attr}};
 	my $string = $event->{string};
+	my $type = $event->{type};
+	my $element = $event->{element};
 
 	if ($attr{'anc:id'}) {
 		my $block_id = $attr{'anc:id'};
@@ -140,6 +142,20 @@ sub process_attributes {
 		$string =~ s/(.*)\s+xmlns:anc\s*=\s*['"][^'"]+['"](.*)/$1$2/;
 		$string =~ s/ >/>/;
 		$event->{string} = $string;
+	}
+
+	if ($element =~ /^anc:(\S+)/) {
+		my $anchor_tag = $1;
+		unless ($ANCHOR_TAGS->{$anchor_tag}) {
+			die "unrecognised anchor tag ($anchor_tag): $string";
+		}
+		
+		$event->{string} = '';
+		my $id = $attr{'id'};
+		die "missing id in anchor tag: $type: $string" unless ($id && $type eq 'start');
+
+		$event->{id} = $id;
+		$event->{anchor_tag} = $anchor_tag;
 	}
 }
 
@@ -177,6 +193,13 @@ sub start {
 			push @{$blocks{$last_block_id_in_stack}}, {block => $block_id};
 		}
 	}
+	elsif (defined($event->{anchor_tag})) {
+		my $id = $event->{id};
+		my $last_block_id_in_stack = $block_id_stack[$#block_id_stack - 1];
+		die unless $last_block_id_in_stack;
+		push @{$blocks{$last_block_id_in_stack}}, {id => $id};
+		new_add_push($event);
+	}
 	else {
 		dhandler(@_);
 	}
@@ -207,7 +230,6 @@ sub add_new_pop {
 	unless (defined($last_block_idx_idx) && $last_block_idx_idx == $#content) {
 		push @{$blocks{$block_id}}, {cdx => $#content};
 	}
-
 
 	if ($block_id eq 'root') {
 		$content_ref = \$xmlend;
