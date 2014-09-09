@@ -249,4 +249,34 @@ sub dhandler {
 	add_content($event);
 }
 
+sub instance {
+	my $self = shift;
+	my $instance = Template::Anchor::Instance->new($self);
+	return $instance;
+}
+
+package Template::Anchor::Instance;
+
+sub new {
+	my $class = shift;
+	my $template = shift;
+
+	my $self = bless {template => $template}, $class;
+
+	# do a deep copy of the template block for the instance
+	my $template_blocks = $template->{blocks};
+	my %inst_blocks = (
+		map {
+			my @indexes = map { my %h = %{$_}; \%h; } @{$template_blocks->{$_}};
+			$_ => \@indexes;
+
+		} keys %$template_blocks
+	);	
+
+	$self->{blocks} = \%inst_blocks;
+
+	return $self;
+}
+
+
 1;

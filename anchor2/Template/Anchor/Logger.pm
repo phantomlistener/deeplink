@@ -21,6 +21,8 @@ my $_log = sub {
 	my $self = shift;
 	my $msg = shift;
 
+	$msg =~ s/^\s*([^\s].+[^\s])\s*$/$1/g;
+
 	$self->{last_msg} = $msg;
 
 	my @c = caller(1);
@@ -37,6 +39,7 @@ my $_log = sub {
 	my $line = $c[2];
 
 	warn "$f: $msg at $package line $line\n";
+	
 };
 
 
