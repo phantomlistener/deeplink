@@ -181,6 +181,8 @@ sub start {
 		$event->{block_id} = 'root';
 	}
 
+	my $anchor_tag = $event->{anchor_tag};
+
 	if (defined($event->{block_id})) {
 		new_add_push($event);
 		my $block_id = $event->{block_id};
@@ -190,14 +192,16 @@ sub start {
 		unless($block_id eq 'root') {
 			my $last_block_id_in_stack = $block_id_stack[$#block_id_stack - 1];
 			die unless $last_block_id_in_stack;
-			push @{$blocks{$last_block_id_in_stack}}, {block => $block_id};
+			push @{$blocks{$last_block_id_in_stack}}, {type => 'block', id => $block_id};
 		}
 	}
-	elsif (defined($event->{anchor_tag})) {
+	elsif (defined($anchor_tag)) {
 		my $id = $event->{id};
-		my $last_block_id_in_stack = $block_id_stack[$#block_id_stack - 1];
+		my $last_block_id_in_stack = $block_id_stack[$#block_id_stack];
 		die unless $last_block_id_in_stack;
-		push @{$blocks{$last_block_id_in_stack}}, {id => $id};
+		my $anchor_element = {id => $id, type => $anchor_tag};
+
+		push @{$blocks{$last_block_id_in_stack}}, $anchor_element;
 		new_add_push($event);
 	}
 	else {
