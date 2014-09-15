@@ -36,8 +36,8 @@ sub new {
 
 my $xmldecl;
 my $xmlend;
-my @content;
-my $content_ref;
+my @text;
+my $text_ref;
 my %block_depths;
 my @block_id_stack;
 my %blocks;
@@ -88,8 +88,8 @@ sub _do_parse {
 sub init {
 	$xmldecl = '';
 	$xmlend = '';
-	@content = ();
-	$content_ref = undef;
+	@text = ();
+	$text_ref = undef;
 	%block_depths = ();
 	@block_id_stack = ();
 	%blocks = ();
@@ -159,18 +159,17 @@ sub process_attributes {
 	}
 }
 
-
 sub final {
 	dhandler(@_);
 
 	$current_parse_self->{xmldecl} = $xmldecl;
 	$current_parse_self->{xmlend} = $xmlend;
-	$current_parse_self->{content} = [@content];
+	$current_parse_self->{content} = [@text];
 	$current_parse_self->{blocks} = {%blocks};
 
 	#print $xmldecl;
 	#my $i = -1;
-	#my @c = map {my $s = $_; $s =~ s/\n/\\n/g ; $i++; "$i -> $s"} @content;
+	#my @c = map {my $s = $_; $s =~ s/\n/\\n/g ; $i++; "$i -> $s"} @text;
 	#print Dumper \@c;
 	#print  Dumper \%blocks;
 }
@@ -211,14 +210,14 @@ sub start {
 
 sub new_add_push {
 	my $event = shift;
-	push(@content, '');
-	$content_ref = \$content[$#content];
+	push(@text, '');
+	$text_ref = \$text[$#text];
 	add_content($event);
 
 	my $block_id = $event->{block_id};
 	if ($block_id) {
 		$blocks{$block_id} = [] unless $blocks{$block_id};
-		push @{$blocks{$block_id}}, {cdx => $#content};
+		push @{$blocks{$block_id}}, {cdx => $#text};
 	}
 }
 
@@ -231,23 +230,23 @@ sub add_new_pop {
 	my $last_block_idx = $#{$blocks{$block_id}};
 	my $last_block_idx_idx = $blocks{$block_id}->[$last_block_idx]->{cdx} if ($last_block_idx >= 0);
 
-	unless (defined($last_block_idx_idx) && $last_block_idx_idx == $#content) {
-		push @{$blocks{$block_id}}, {cdx => $#content};
+	unless (defined($last_block_idx_idx) && $last_block_idx_idx == $#text) {
+		push @{$blocks{$block_id}}, {cdx => $#text};
 	}
 
 	if ($block_id eq 'root') {
-		$content_ref = \$xmlend;
+		$text_ref = \$xmlend;
 	}
 	else {
-		push(@content, '');
-		$content_ref = \$content[$#content];
+		push(@text, '');
+		$text_ref = \$text[$#text];
 		pop @block_id_stack;
 	}
 }
 
 sub add_content {
 	my $event = shift;
-	$$content_ref .= $event->{string};
+	$$text_ref .= $event->{string};
 }
 
 sub end {
@@ -267,7 +266,7 @@ sub end {
 sub xmldecl {
 	my $event = event('xmldecl', @_);
 	$xmldecl .= $event->{string};
-	$content_ref = \$xmldecl;
+	$text_ref = \$xmldecl;
 }
 
 sub dhandler {
