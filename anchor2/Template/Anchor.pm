@@ -37,6 +37,7 @@ sub new {
 my $xmldecl;
 my $xmlend;
 my @text;
+my @content;
 my $text_ref;
 my %block_depths;
 my @block_id_stack;
@@ -89,6 +90,7 @@ sub init {
 	$xmldecl = '';
 	$xmlend = '';
 	@text = ();
+	@content = ();
 	$text_ref = undef;
 	%block_depths = ();
 	@block_id_stack = ();
@@ -164,7 +166,8 @@ sub final {
 
 	$current_parse_self->{xmldecl} = $xmldecl;
 	$current_parse_self->{xmlend} = $xmlend;
-	$current_parse_self->{content} = [@text];
+	$current_parse_self->{text} = [@text];
+	$current_parse_self->{content} = [@content];
 	$current_parse_self->{blocks} = {%blocks};
 
 	#print $xmldecl;
@@ -212,7 +215,7 @@ sub new_add_push {
 	my $event = shift;
 	push(@text, '');
 	$text_ref = \$text[$#text];
-	add_content($event);
+	add_text($event);
 
 	my $block_id = $event->{block_id};
 	if ($block_id) {
@@ -223,7 +226,7 @@ sub new_add_push {
 
 sub add_new_pop {
 	my $event = shift;
-	add_content($event);
+	add_text($event);
 
 	my $block_id = $event->{block_id};
 
@@ -244,7 +247,7 @@ sub add_new_pop {
 	}
 }
 
-sub add_content {
+sub add_text {
 	my $event = shift;
 	$$text_ref .= $event->{string};
 }
@@ -271,7 +274,7 @@ sub xmldecl {
 
 sub dhandler {
 	my $event = event('dhandler', @_);
-	add_content($event);
+	add_text($event);
 }
 
 sub instance {
