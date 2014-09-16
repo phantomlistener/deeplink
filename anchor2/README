@@ -1,0 +1,12 @@
+$event = {
+	string => $string,
+	element => $element,
+	attr => \%attr,
+	block_depth => $block_depth,
+	depth => $depth,
+	type => $type
+
+	block_id =>  block id,
+	id => anchor id,
+	anchor_tag => anchor tag,
+}
