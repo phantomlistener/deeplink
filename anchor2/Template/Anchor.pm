@@ -223,7 +223,7 @@ sub new_add_push {
 	if ($block_id) {
 		# $blocks{$block_id} = [] unless $blocks{$block_id};
 		# push @{$blocks{$block_id}}, {cdx => $#text};
-		push @content, {type => 'text', idx => $#text};
+		#push @content, {type => 'text', idx => $#text};
 	}
 }
 
@@ -238,7 +238,7 @@ sub add_new_pop {
 
 	# unless (defined($last_block_idx_idx) && $last_block_idx_idx == $#text) {
 		# push @{$blocks{$block_id}}, {cdx => $#text};
-		push @content, {type => 'text', idx => $#text};
+		# push @content, {type => 'text', idx => $#text};
 	# }
 
 	if ($block_id eq 'root') {
@@ -263,6 +263,7 @@ sub end {
 	# if ($block_depths{$event->{block_depth}} && $event->{depth} > 0) {
 	if ($block_id)  {
 		$event->{block_id} = $block_id;
+		push @content, {type => 'block_end', id => $block_id, idx => $#text};
 		add_new_pop($event);
 	}
 	else {
