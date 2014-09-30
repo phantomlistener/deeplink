@@ -107,6 +107,8 @@ sub event {
 	my %attr = @_;
 	my $block_depth = $element . $depth;
 
+	# print ">>$type: $string\n";
+
 	my $event = {
 		string => $string,
 		element => $element,
@@ -118,6 +120,12 @@ sub event {
 
 	if ($type eq 'start') {
 		process_attributes($event);
+	}
+
+	my $block_id = $block_depths{$event->{block_depth}};
+	if ($block_id) {
+		# must be an end of a block
+		$event->{block_id} = $block_id;
 	}
 
 	return $event;
@@ -206,7 +214,7 @@ sub start {
 
 		# push @{$blocks{$last_block_id_in_stack}}, $anchor_element;
 		new_add_push($event);
-		push @content, {type => $anchor_tag, id => $id, idx => $#text};
+		push @content, {type => $anchor_tag, id => $id}; #, idx => $#text};
 	}
 	else {
 		dhandler(@_);
@@ -233,13 +241,18 @@ sub add_new_pop {
 
 	my $block_id = $event->{block_id};
 
-	# my $last_block_idx = $#{$blocks{$block_id}};
+	my $last_block_idx = $content[$#content]->{idx};
+	my $last_type = $content[$#content]->{type};
 	# my $last_block_idx_idx = $blocks{$block_id}->[$last_block_idx]->{cdx} if ($last_block_idx >= 0);
 
-	# unless (defined($last_block_idx_idx) && $last_block_idx_idx == $#text) {
+	if ($last_type && $last_type eq 'block_start' && $last_block_idx == $#text) {
+		$content[$#content]->{type} = 'block';
+	}
+	else {
+		push @content, {type => 'block_end', id => $block_id, idx => $#text};
 		# push @{$blocks{$block_id}}, {cdx => $#text};
 		# push @content, {type => 'text', idx => $#text};
-	# }
+	}
 
 	if ($block_id eq 'root') {
 		$text_ref = \$xmlend;
@@ -258,12 +271,10 @@ sub add_text {
 
 sub end {
 	my $event = event('end', @_);
-	my $block_id = $block_depths{$event->{block_depth}};
+	my $block_id = $event->{block_id};
 	
 	# if ($block_depths{$event->{block_depth}} && $event->{depth} > 0) {
 	if ($block_id)  {
-		$event->{block_id} = $block_id;
-		push @content, {type => 'block_end', id => $block_id, idx => $#text};
 		add_new_pop($event);
 	}
 	else {
