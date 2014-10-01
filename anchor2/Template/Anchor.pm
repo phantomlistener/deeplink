@@ -300,12 +300,15 @@ sub instance {
 }
 
 package Template::Anchor::Instance;
+use Clone 'clone';
 
 sub new {
 	my $class = shift;
 	my $template = shift;
 
 	my $self = bless {template => $template}, $class;
+	my $instance = clone $template->{content};
+	$self->{instance} = $instance;
 
 	# do a deep copy of the template block for the instance
 	# my $template_blocks = $template->{blocks};
