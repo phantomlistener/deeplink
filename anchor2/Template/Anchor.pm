@@ -311,18 +311,6 @@ sub new {
 	my @instance = map {my %h = %$_ ; \%h} @{$template->{content}};
 	$self->{instance} = \@instance;
 
-	# do a deep copy of the template block for the instance
-	# my $template_blocks = $template->{blocks};
-	# my %inst_blocks = (
-		# map {
-			# my @indexes = map { my %h = %{$_}; \%h; } @{$template_blocks->{$_}};
-			# $_ => \@indexes;
-
-		# } keys %$template_blocks
-	# );	
-
-	# $self->{blocks} = \%inst_blocks;
-
 	return $self;
 }
 
