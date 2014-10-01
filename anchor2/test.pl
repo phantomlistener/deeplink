@@ -14,7 +14,8 @@ my $t = Template::Anchor->new(file => $file);
 # print Dumper \$t if $t;
 
 my $inst = $t->instance();
-print Dumper $inst;
+# print Dumper $inst;
+print $inst->out() . "\n";
 
 # print Dumper \$inst->{template}->{content};
 # print Dumper \$inst->{template}->{text};

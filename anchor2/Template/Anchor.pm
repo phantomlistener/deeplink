@@ -314,5 +314,21 @@ sub new {
 	return $self;
 }
 
+sub out {
+	my $self = shift;
+	my $out = '';
+
+	my $text = $self->{template}->{text};
+	foreach my $c (@{$self->{instance}}) {
+		if (defined($c->{idx})) {
+			$out .= $text->[$c->{idx}];
+		}
+		elsif (defined($c->{value})) {
+			$out .= $text->[$c->{value}];
+		}
+	}
+	return $out;
+}
+
 
 1;
