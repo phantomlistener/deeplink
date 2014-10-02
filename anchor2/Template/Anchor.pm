@@ -40,7 +40,7 @@ my @text;
 my @content;
 my $text_ref;
 my %block_depths;
-my @block_id_stack;
+# my @block_id_stack;
 # my %blocks;
 my $current_parse_self;
 
@@ -93,7 +93,7 @@ sub init {
 	@content = ();
 	$text_ref = undef;
 	%block_depths = ();
-	@block_id_stack = ();
+	# @block_id_stack = ();
 	# %blocks = ();
 }
 
@@ -197,11 +197,11 @@ sub start {
 		new_add_push($event);
 		my $block_id = $event->{block_id};
 		$block_depths{$event->{block_depth}} = $block_id;
-		push @block_id_stack, $block_id;
+		# push @block_id_stack, $block_id;
 
 		unless($block_id eq 'root') {
-			my $last_block_id_in_stack = $block_id_stack[$#block_id_stack - 1];
-			die unless $last_block_id_in_stack;
+			# my $last_block_id_in_stack = $block_id_stack[$#block_id_stack - 1];
+			# die unless $last_block_id_in_stack;
 			# push @{$blocks{$last_block_id_in_stack}}, {type => 'block', id => $block_id};
 		}
 
@@ -209,8 +209,8 @@ sub start {
 	}
 	elsif (defined($anchor_tag)) {
 		my $id = $event->{id};
-		my $last_block_id_in_stack = $block_id_stack[$#block_id_stack];
-		die unless $last_block_id_in_stack;
+		# my $last_block_id_in_stack = $block_id_stack[$#block_id_stack];
+		# die unless $last_block_id_in_stack;
 
 		# push @{$blocks{$last_block_id_in_stack}}, $anchor_element;
 		new_add_push($event);
@@ -260,7 +260,7 @@ sub add_new_pop {
 	else {
 		push(@text, '');
 		$text_ref = \$text[$#text];
-		pop @block_id_stack;
+		# pop @block_id_stack;
 	}
 }
 
