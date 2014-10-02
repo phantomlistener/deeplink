@@ -40,8 +40,6 @@ my @text;
 my @content;
 my $text_ref;
 my %block_depths;
-# my @block_id_stack;
-# my %blocks;
 my $current_parse_self;
 
 sub _do_parse {
@@ -93,8 +91,6 @@ sub init {
 	@content = ();
 	$text_ref = undef;
 	%block_depths = ();
-	# @block_id_stack = ();
-	# %blocks = ();
 }
 
 sub event {
@@ -176,13 +172,6 @@ sub final {
 	$current_parse_self->{xmlend} = $xmlend;
 	$current_parse_self->{text} = [@text];
 	$current_parse_self->{content} = [@content];
-	# $current_parse_self->{blocks} = {%blocks};
-
-	#print $xmldecl;
-	#my $i = -1;
-	#my @c = map {my $s = $_; $s =~ s/\n/\\n/g ; $i++; "$i -> $s"} @text;
-	#print Dumper \@c;
-	#print  Dumper \%blocks;
 }
 
 sub start {
@@ -197,22 +186,12 @@ sub start {
 		new_add_push($event);
 		my $block_id = $event->{block_id};
 		$block_depths{$event->{block_depth}} = $block_id;
-		# push @block_id_stack, $block_id;
-
-		unless($block_id eq 'root') {
-			# my $last_block_id_in_stack = $block_id_stack[$#block_id_stack - 1];
-			# die unless $last_block_id_in_stack;
-			# push @{$blocks{$last_block_id_in_stack}}, {type => 'block', id => $block_id};
-		}
 
 		push @content, {type => 'block_start', id => $block_id, idx => $#text};
 	}
 	elsif (defined($anchor_tag)) {
 		my $id = $event->{id};
-		# my $last_block_id_in_stack = $block_id_stack[$#block_id_stack];
-		# die unless $last_block_id_in_stack;
 
-		# push @{$blocks{$last_block_id_in_stack}}, $anchor_element;
 		new_add_push($event);
 		push @content, {type => $anchor_tag, id => $id}; #, idx => $#text};
 	}
@@ -226,13 +205,6 @@ sub new_add_push {
 	push(@text, '');
 	$text_ref = \$text[$#text];
 	add_text($event);
-
-	my $block_id = $event->{block_id};
-	if ($block_id) {
-		# $blocks{$block_id} = [] unless $blocks{$block_id};
-		# push @{$blocks{$block_id}}, {cdx => $#text};
-		#push @content, {type => 'text', idx => $#text};
-	}
 }
 
 sub add_new_pop {
@@ -243,15 +215,12 @@ sub add_new_pop {
 
 	my $last_block_idx = $content[$#content]->{idx};
 	my $last_type = $content[$#content]->{type};
-	# my $last_block_idx_idx = $blocks{$block_id}->[$last_block_idx]->{cdx} if ($last_block_idx >= 0);
 
 	if ($last_type && $last_type eq 'block_start' && $last_block_idx == $#text) {
 		$content[$#content]->{type} = 'block';
 	}
 	else {
 		push @content, {type => 'block_end', id => $block_id, idx => $#text};
-		# push @{$blocks{$block_id}}, {cdx => $#text};
-		# push @content, {type => 'text', idx => $#text};
 	}
 
 	if ($block_id eq 'root') {
@@ -260,7 +229,6 @@ sub add_new_pop {
 	else {
 		push(@text, '');
 		$text_ref = \$text[$#text];
-		# pop @block_id_stack;
 	}
 }
 
@@ -273,7 +241,6 @@ sub end {
 	my $event = event('end', @_);
 	my $block_id = $event->{block_id};
 	
-	# if ($block_depths{$event->{block_depth}} && $event->{depth} > 0) {
 	if ($block_id)  {
 		add_new_pop($event);
 	}
