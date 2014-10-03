@@ -292,6 +292,43 @@ sub new {
 	return $self;
 }
 
+sub do {
+	my $self = shift;
+	my $id = shift;
+	my @copy = $self->_get_block_copy($id); 
+	unless (@copy) {
+		return undef;
+	}
+
+	my $ids = $self->{ids};
+	my $instance = $self->{instance};
+	my $start = $ids->{$id}->{start};
+	my $end = $ids->{$id}->{end};
+
+	splice(@$instance, $end + 1, 0, @copy);
+
+	foreach my $id (keys %{$ids}) {
+	}
+}
+
+sub _get_block_copy {
+	my $self = shift;
+	my $id = shift;
+
+	my $template = $self->{template};
+	my $id_data = $template->{ids}->{$id};
+	unless ($id_data && $id_data->{type} eq 'block') {
+		$LOG->warn("block id:$id: not found");
+		return undef;
+
+	}
+	my $start = $id_data->{start};
+	my $end = $id_data->{end};
+
+	my @copy = map { {%{$_}} } @{$template->{content}}[$start .. $end];
+	return @copy;
+}
+
 sub out {
 	my $self = shift;
 	my $out = '';

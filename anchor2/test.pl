@@ -18,5 +18,9 @@ my $inst = $t->instance();
 
 print $inst->out() . "\n";
 
-print Dumper $inst;
+# print Dumper $inst;
+
+my @copy = $inst->_get_block_copy('x');
+
+print Dumper \@copy;
 
