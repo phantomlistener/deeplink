@@ -191,14 +191,14 @@ sub start {
 		$block_depths{$event->{block_depth}} = $block_id;
 
 		push @content, {type => 'block_start', id => $block_id, idx => $#text};
-		$ids{$block_id} = {start => $#content};
+		$ids{$block_id} = {start => $#content, type =>'block'};
 	}
 	elsif (defined($anchor_tag)) {
 		my $id = $event->{id};
 
 		new_add_push($event);
 		push @content, {type => $anchor_tag, id => $id}; #, idx => $#text};
-		$ids{$id} = {idx => $#content};
+		$ids{$id} = {idx => $#content, type => $anchor_tag};
 	}
 	else {
 		dhandler(@_);
