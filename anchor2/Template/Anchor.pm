@@ -38,6 +38,7 @@ my $xmldecl;
 my $xmlend;
 my @text;
 my @content;
+my %ids;
 my $text_ref;
 my %block_depths;
 my $current_parse_self;
@@ -89,6 +90,7 @@ sub init {
 	$xmlend = '';
 	@text = ();
 	@content = ();
+	%ids = ();
 	$text_ref = undef;
 	%block_depths = ();
 }
@@ -172,6 +174,7 @@ sub final {
 	$current_parse_self->{xmlend} = $xmlend;
 	$current_parse_self->{text} = [@text];
 	$current_parse_self->{content} = [@content];
+	$current_parse_self->{ids} = {%ids};
 }
 
 sub start {
@@ -188,12 +191,14 @@ sub start {
 		$block_depths{$event->{block_depth}} = $block_id;
 
 		push @content, {type => 'block_start', id => $block_id, idx => $#text};
+		$ids{$block_id} = {start => $#content};
 	}
 	elsif (defined($anchor_tag)) {
 		my $id = $event->{id};
 
 		new_add_push($event);
 		push @content, {type => $anchor_tag, id => $id}; #, idx => $#text};
+		$ids{$id} = {idx => $#content};
 	}
 	else {
 		dhandler(@_);
@@ -218,9 +223,12 @@ sub add_new_pop {
 
 	if ($last_type && $last_type eq 'block_start' && $last_block_idx == $#text) {
 		$content[$#content]->{type} = 'block';
+		delete $ids{$block_id}->{start};
+		$ids{$block_id}->{idx} = $#content;
 	}
 	else {
 		push @content, {type => 'block_end', id => $block_id, idx => $#text};
+		$ids{$block_id}->{end} = $#content;
 	}
 
 	if ($block_id eq 'root') {
@@ -277,6 +285,9 @@ sub new {
 	# clone the content list
 	my @instance = map {my %h = %$_ ; \%h} @{$template->{content}};
 	$self->{instance} = \@instance;
+
+	my %ids = map {ref($_) ? {%{$_}} : $_} %{$template->{ids}};
+	$self->{ids} = \%ids;
 
 	return $self;
 }
