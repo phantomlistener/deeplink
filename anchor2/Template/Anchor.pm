@@ -304,10 +304,21 @@ sub do {
 	my $instance = $self->{instance};
 	my $start = $ids->{$id}->{start};
 	my $end = $ids->{$id}->{end};
+	my $length = scalar @copy;
 
 	splice(@$instance, $end + 1, 0, @copy);
 
 	foreach my $id (keys %{$ids}) {
+		if ($ids->{$id}->{start} >=  $end) {
+			$ids->{$id}->{start} += $length;
+			$ids->{$id}->{end} += $length;
+		}
+		elsif ($ids->{$id}->{end} >= $end) {
+			$ids->{$id}->{end} += $length;
+		}
+		elsif ($ids->{$id}->{idx} > $start && $ids->{$id}->{idx} <= $end) {
+			$ids->{$id}->{idx} += $length;
+		}
 	}
 }
 
