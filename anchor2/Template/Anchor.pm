@@ -344,6 +344,8 @@ sub out {
 	my $self = shift;
 	my $out = '';
 
+	$out .= $self->{template}->{xmldecl};
+
 	my $text = $self->{template}->{text};
 	foreach my $c (@{$self->{instance}}) {
 		if (defined($c->{idx})) {

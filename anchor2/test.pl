@@ -15,10 +15,11 @@ my $t = Template::Anchor->new(file => $file);
 
 my $inst = $t->instance();
 
-print $inst->out() . "\n";
 
 
 $inst->do('x');
 
-print Dumper $inst;
+print $inst->out() . "\n";
+
+# print Dumper $inst;
 
