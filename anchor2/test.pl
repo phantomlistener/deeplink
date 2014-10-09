@@ -18,10 +18,10 @@ my $inst = $t->instance();
 #print Dumper $inst;
 
 
-$inst->set_var('v', 'first V');
+$inst->set_var('v', '> first V');
 
 $inst->do('x');
-$inst->set_var('v', 'second V');
+$inst->set_var('v', '> second V');
 
 #print Dumper $inst;
 

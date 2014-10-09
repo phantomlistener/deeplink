@@ -275,6 +275,8 @@ sub instance {
 }
 
 package Template::Anchor::Instance;
+use strict;
+use HTML::Entities;
 
 sub new {
 	my $class = shift;
@@ -306,7 +308,7 @@ sub set_var {
 		return undef;
 	}
 	my $idx = $ids->{$id}->{idx};
-	$instance->[$idx]->{value} = $value;
+	$instance->[$idx]->{value} = encode_entities $value;
 }
 
 sub do {
