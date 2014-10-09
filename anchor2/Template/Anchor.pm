@@ -292,6 +292,23 @@ sub new {
 	return $self;
 }
 
+sub set_var {
+	my $self = shift;
+	my $id = shift;
+	my $value = shift;
+
+	my $ids = $self->{ids};
+	my $instance = $self->{instance};
+
+	my $id_data = $self->{ids}->{$id};
+	unless ($id_data && $id_data->{type} eq 'var') {
+		$LOG->warn("var id:$id: not found");
+		return undef;
+	}
+	my $idx = $ids->{$id}->{idx};
+	$instance->[$idx]->{value} = $value;
+}
+
 sub do {
 	my $self = shift;
 	my $id = shift;
@@ -352,7 +369,7 @@ sub out {
 			$out .= $text->[$c->{idx}];
 		}
 		elsif (defined($c->{value})) {
-			$out .= $text->[$c->{value}];
+			$out .= $c->{value};
 		}
 	}
 	return $out;
