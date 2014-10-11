@@ -191,6 +191,13 @@ sub start {
 		$block_depths{$event->{block_depth}} = $block_id;
 
 		push @content, {type => 'block_start', id => $block_id, idx => $#text};
+
+		if ($ids{$block_id}) {
+			my $p = $_[0];
+			my $loc = _parse_error_location($p);
+			die sprintf 'duplicate block id %s: %s%s', $loc, $block_id, "\n";
+		}
+
 		$ids{$block_id} = {start => $#content, type =>'block'};
 	}
 	elsif (defined($anchor_tag)) {
@@ -198,6 +205,11 @@ sub start {
 
 		new_add_push($event);
 		push @content, {type => $anchor_tag, id => $id}; #, idx => $#text};
+		if ($ids{$id}) {
+			my $p = $_[0];
+			my $loc = _parse_error_location($p);
+			die sprintf 'duplicate id %s: %s%s', $loc, $id, "\n";
+		}
 		$ids{$id} = {idx => $#content, type => $anchor_tag};
 	}
 	else {
