@@ -247,11 +247,12 @@ sub add_text {
 
 sub end {
 	my $event = event('end', @_);
-	my $p = $_[0];
 
 	if ($event->{element} =~ /^anc:/ && $event->{string}) {
-		my $msg = sprintf 'anchor tag must be empty element at line %s, column %s, byte %s: %s', $p->current_line, $p->current_column, $p->current_byte, $event->{element};
-		die "$msg\n";
+		my $p = $_[0];
+		my $loc = _parse_error_location($p);
+		my $elm = $event->{element};
+		die sprintf 'anchor tag must be empty element %s: %s%s', $loc, $elm, "\n";
 	}
 
 	my $block_id = $event->{block_id};
@@ -262,6 +263,12 @@ sub end {
 	else {
 		dhandler(@_);
 	}
+}
+
+sub _parse_error_location {
+	my $p = shift;
+	my $msg = sprintf 'at line %s, column %s, byte %s', $p->current_line, $p->current_column, $p->current_byte;
+	return $msg;
 }
 
 sub xmldecl {
