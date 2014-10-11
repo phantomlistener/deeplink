@@ -155,12 +155,12 @@ sub process_attributes {
 	if ($element =~ /^anc:(\S+)/) {
 		my $anchor_tag = $1;
 		unless ($ANCHOR_TAGS->{$anchor_tag}) {
-			die "unrecognised anchor tag ($anchor_tag): $string";
+			die "unrecognised anchor tag ($anchor_tag): $string\n";
 		}
 		
 		$event->{string} = '';
 		my $id = $attr{'id'};
-		die "missing id in anchor tag: $type: $string" unless ($id && $type eq 'start');
+		die "missing id in anchor tag: $type: $string\n" unless ($id && $type eq 'start');
 
 		$event->{id} = $id;
 		$event->{anchor_tag} = $anchor_tag;
@@ -247,6 +247,13 @@ sub add_text {
 
 sub end {
 	my $event = event('end', @_);
+	my $p = $_[0];
+
+	if ($event->{element} =~ /^anc:/ && $event->{string}) {
+		my $msg = sprintf 'anchor tag must be empty element at line %s, column %s, byte %s: %s', $p->current_line, $p->current_column, $p->current_byte, $event->{element};
+		die "$msg\n";
+	}
+
 	my $block_id = $event->{block_id};
 	
 	if ($block_id)  {
