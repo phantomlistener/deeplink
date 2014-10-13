@@ -397,12 +397,34 @@ sub _get_block_copy {
 
 sub out {
 	my $self = shift;
+	my $id = shift;
 	my $out = '';
 
-	$out .= $self->{template}->{xmldecl};
+	my $root_id = $self->{template}->{root_id};
+	my $id_data = $self->{ids}->{$root_id};
+	my $start = $id_data->{start};
+	my $end = $id_data->{end};
+
+	if (defined($id)) {
+		my $id_data = $self->{ids}->{$id};
+		if ($id_data && $id_data->{type} eq 'block') {
+			$start = $id_data->{start};
+			$end = $id_data->{end};
+		}
+		else {
+			$LOG->warn("block id:$id: not found");
+			return undef;
+		}
+	}
+
+	if (!$id && $self->{template}->{xmldecl}) {
+		#full output so do xmldecl if there is one
+		$out .= $self->{template}->{xmldecl};
+	}
 
 	my $text = $self->{template}->{text};
-	foreach my $c (@{$self->{instance}}) {
+	for (my $i = $start; $i <= $end; $i++) {
+		my $c = $self->{instance}->[$i];
 		if (defined($c->{idx})) {
 			$out .= $text->[$c->{idx}];
 		}
@@ -410,6 +432,12 @@ sub out {
 			$out .= $c->{value};
 		}
 	}
+
+	if (!$id && $self->{template}->{xmlend}) {
+		#full output so do xmlend if there is one
+		$out .= $self->{template}->{xmlend};
+	}
+
 	return $out;
 }
 

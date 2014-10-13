@@ -11,15 +11,25 @@ $event = {
 	anchor_tag => anchor tag,
 }
 
+how about ->out(id)
+just do an out on a specific id?
+
 include
 	id = <block id>
 	prefix = "pre_" every id in block is prefixed
 	replace_id = replace id with this id
 
+	include automatically leaves out xmldecl and final
+
 Template::Anchor::Set
+	get the instance from here
+	Only the ::Set will have a ref to all Templates!
+
+
+
 
 new(list of templates)
-list of templates need a top level unique root id
+list of templates - each template needs need a top level unique root id
 
 
 
