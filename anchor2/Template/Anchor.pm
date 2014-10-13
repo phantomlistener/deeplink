@@ -34,6 +34,12 @@ sub new {
 	return undef;
 }
 
+sub instance {
+	my $self = shift;
+	my $instance = Template::Anchor::Instance->new($self);
+	return $instance;
+}
+
 my $xmldecl;
 my $xmlend;
 my @text;
@@ -294,12 +300,6 @@ sub dhandler {
 	add_text($event);
 }
 
-sub instance {
-	my $self = shift;
-	my $instance = Template::Anchor::Instance->new($self);
-	return $instance;
-}
-
 package Template::Anchor::Instance;
 use strict;
 use HTML::Entities;
@@ -314,6 +314,7 @@ sub new {
 	my @instance = map {my %h = %$_ ; \%h} @{$template->{content}};
 	$self->{instance} = \@instance;
 
+	# clone id list
 	my %ids = map {ref($_) ? {%{$_}} : $_} %{$template->{ids}};
 	$self->{ids} = \%ids;
 

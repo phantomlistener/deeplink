@@ -10,3 +10,17 @@ $event = {
 	id => anchor id,
 	anchor_tag => anchor tag,
 }
+
+include
+	id = <block id>
+	prefix = "pre_" every id in block is prefixed
+	replace_id = replace id with this id
+
+Template::Anchor::Set
+
+new(list of templates)
+list of templates need a top level unique root id
+
+
+
+Template::DeepLink::Set
