@@ -20,11 +20,12 @@ my $inst = $t->instance();
 
 $inst->set_var('v', '> first V');
 
-$inst->do('x');
+# $inst->do('x');
 $inst->set_var('v', '> second V');
 
-# print Dumper $inst;
 
 print $inst->out() . "\n";
 print $inst->out('x') . "\n";
+
+print Dumper $t;
 
