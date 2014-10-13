@@ -15,7 +15,7 @@ how about ->out(id)
 just do an out on a specific id?
 
 include
-	id = <block id>
+	source_id = <block id>
 	prefix = "pre_" every id in block is prefixed
 	replace_id = replace id with this id
 
