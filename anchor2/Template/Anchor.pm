@@ -4,6 +4,7 @@ use strict;
 use XML::Parser;
 use Data::Dumper;
 use Template::Anchor::Logger;
+use HTML::Entities;
 
 our $LOG = Template::Anchor::Logger->new();
 
@@ -20,6 +21,14 @@ sub new {
 
 	my $file = $args{file};
 	my $stream = $args{stream};
+	my $root_id = $args{root_id};
+
+	if (defined($root_id)) {
+		$self->{root_id} = encode_entities $root_id;
+	}
+	else {
+		$self->{root_id} = 'root';
+	}
 	
 	unless ($file or $stream) {
 		$LOG->fatal("$class needs file or stream");
@@ -186,7 +195,7 @@ sub final {
 sub start {
 	my $event = event('start', @_);
 	if ($event->{depth} == 0 ) {
-		$event->{block_id} = 'root';
+		$event->{block_id} = $current_parse_self->{root_id};
 	}
 
 	my $anchor_tag = $event->{anchor_tag};
@@ -249,7 +258,7 @@ sub add_new_pop {
 		$ids{$block_id}->{end} = $#content;
 	}
 
-	if ($block_id eq 'root') {
+	if ($block_id eq $current_parse_self->{root_id}) {
 		$text_ref = \$xmlend;
 	}
 	else {
