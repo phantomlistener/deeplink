@@ -51,7 +51,7 @@ sub _insert {
 	my $id = shift;
 	my $template; # Template::Anchor
 
-	my @copy = _get_block_copy($template, $id); 
+	my @copy = Template::Anchor::Utils::get_block_copy($template, $id); 
 
 	my $ids = $self->{ids};
 	my $instance = $self->{instance};
@@ -367,7 +367,7 @@ sub set_var {
 sub do {
 	my $self = shift;
 	my $id = shift;
-	my @copy = _get_block_copy($self->{template}, $id); 
+	my @copy = Template::Anchor::Utils::get_block_copy($self->{template}, $id); 
 	unless (@copy) {
 		return undef;
 	}
@@ -392,24 +392,6 @@ sub do {
 			$ids->{$id}->{idx} += $length;
 		}
 	}
-}
-
-# May be used to copy any template data
-sub _get_block_copy {
-	my $template = shift;
-	my $id = shift;
-
-	my $id_data = $template->{ids}->{$id};
-	unless ($id_data && $id_data->{type} eq 'block') {
-		$LOG->warn("block id:$id: not found");
-		return undef;
-
-	}
-	my $start = $id_data->{start};
-	my $end = $id_data->{end};
-
-	my @copy = map { {%{$_}} } @{$template->{content}}[$start .. $end];
-	return @copy;
 }
 
 sub out {
@@ -458,5 +440,24 @@ sub out {
 	return $out;
 }
 
+package Template::Anchor::Utils;
+
+# May be used to copy any template data
+sub get_block_copy {
+	my $template = shift;
+	my $id = shift;
+
+	my $id_data = $template->{ids}->{$id};
+	unless ($id_data && $id_data->{type} eq 'block') {
+		$LOG->warn("block id:$id: not found");
+		return undef;
+
+	}
+	my $start = $id_data->{start};
+	my $end = $id_data->{end};
+
+	my @copy = map { {%{$_}} } @{$template->{content}}[$start .. $end];
+	return @copy;
+}
 
 1;
