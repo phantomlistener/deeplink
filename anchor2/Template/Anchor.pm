@@ -350,7 +350,7 @@ sub set_var {
 sub do {
 	my $self = shift;
 	my $id = shift;
-	my @copy = $self->_get_block_copy($id); 
+	my @copy = _get_block_copy($self->{template}, $id); 
 	unless (@copy) {
 		return undef;
 	}
@@ -377,11 +377,11 @@ sub do {
 	}
 }
 
+# May be used to copy any template data
 sub _get_block_copy {
-	my $self = shift;
+	my $template = shift;
 	my $id = shift;
 
-	my $template = $self->{template};
 	my $id_data = $template->{ids}->{$id};
 	unless ($id_data && $id_data->{type} eq 'block') {
 		$LOG->warn("block id:$id: not found");

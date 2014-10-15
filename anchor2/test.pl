@@ -27,5 +27,5 @@ $inst->set_var('v', '> second V');
 print $inst->out() . "\n";
 print $inst->out('x') . "\n";
 
-print Dumper $t;
+# print Dumper $t;
 
