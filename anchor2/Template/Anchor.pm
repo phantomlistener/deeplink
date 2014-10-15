@@ -377,6 +377,22 @@ sub do {
 	}
 }
 
+# to be used in the "include" process
+sub _insert {
+	my $self = shift; # Template::Anchor to be inserted into
+	# Id from source template to be inserted
+	my $id = shift;
+	my $template; # Template::Anchor
+
+	my @copy = _get_block_copy($template, $id); 
+
+	my $ids = $self->{ids};
+	my $instance = $self->{instance};
+	my $start = $ids->{$id}->{start};
+	my $end = $ids->{$id}->{end};
+	my $length = scalar @copy;
+}
+
 # May be used to copy any template data
 sub _get_block_copy {
 	my $template = shift;
