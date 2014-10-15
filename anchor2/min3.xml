@@ -1,1 +1,1 @@
-<n>a<m anc:id="m">xyz</m>b</n>
+<n>a<m anc:id="m">xyz</m>b<anc:include id='blah'/></n>

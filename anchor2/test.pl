@@ -11,7 +11,7 @@ Template::Anchor::Logger::info_level();
 
 my $t = Template::Anchor->new(file => $file, root_id => 'root');
 
-# print Dumper \$t if $t;
+print Dumper \$t if $t;
 
 my $inst = $t->instance();
 
@@ -21,7 +21,6 @@ my $inst = $t->instance();
 $inst->set_var('v', '> first V');
 
 $inst->do('x');
-# print Dumper $inst;
 
 #$inst->set_var('v', '> second V');
 
