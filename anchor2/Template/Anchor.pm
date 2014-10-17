@@ -45,11 +45,9 @@ sub new {
 
 
 # to be used in the "include" process
-sub _include {
+sub include {
 	my $self = shift; # Template::Anchor to be inserted into
-	my $include_id = shift; # id to replace
-	my $template = shift; # Template::Anchor source source
-	my $id = shift; # Id from source template to be inserted
+	my $set = shift;
 
 	my $ids = $self->{ids};
 	my $include = $ids->{$include_id}
@@ -85,6 +83,10 @@ sub _include {
 	}
 
 }
+
+sub includes {
+}
+
 
 sub instance {
 	my $self = shift;
