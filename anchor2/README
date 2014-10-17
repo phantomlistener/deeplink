@@ -21,6 +21,27 @@ include
 
 	include automatically leaves out xmldecl and final
 
+
+::Set -> add(id => Temlate)
+supply ID or use root id in Temlate
+store Tpl extract all block ids from templates
+store Tpl extract all include ids from templates
+
+notionally one template is the "root" or start template.
+This needs to be resolved with an include call
+Template->include(Template::Set)
+	get list of include IDs from Template Set
+
+	recurse over its list of include IDs
+	if (no inlude id) {
+			we are at leaf node 
+			process the "leaf" contents
+	}
+	else {recurse again - resolve all nodes }
+
+	check for recursion loop - keep track of all seen block ids
+
+
 Template::Anchor::Set
 	get the instance from here
 	Only the ::Set will have a ref to all Templates!
@@ -34,3 +55,5 @@ list of templates - each template needs need a top level unique root id
 
 
 Template::DeepLink::Set
+
+
