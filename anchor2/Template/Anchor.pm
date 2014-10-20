@@ -45,46 +45,16 @@ sub new {
 
 
 # to be used in the "include" process
-sub include {
+sub resolve {
 	my $self = shift; # Template::Anchor to be inserted into
 	my $set = shift;
 
 	my $ids = $self->{ids};
-	my $include = $ids->{$include_id}
-	unless ($include && $include->{type} eq 'include') {
-		$LOG->warn("include id:$id: not found");
-		return undef;
-	}
-
-	my @copy = Template::Anchor::Utils::get_block_copy($template, $id); 
-	unless (@copy) {
-		$LOG->warn("source id:$id: not found");
-		return undef;
-	}
-
-	my $content = $self->{content};
-	my $start = $ids->{$id}->{start};
-	my $end = $ids->{$id}->{end};
-	my $length = scalar @copy;
-
-	splice(@$content, $end + 1, 0, @copy);
-
-	foreach my $id (keys %{$ids}) {
-		if ($ids->{$id}->{start} >=  $end) {
-			$ids->{$id}->{start} += $length;
-			$ids->{$id}->{end} += $length;
-		}
-		elsif ($ids->{$id}->{end} >= $end) {
-			$ids->{$id}->{end} += $length;
-		}
-		elsif ($ids->{$id}->{idx} > $start && $ids->{$id}->{idx} <= $end) {
-			$ids->{$id}->{idx} += $length;
-		}
-	}
 
 }
 
 sub includes {
+	my $self = shift;
 }
 
 
@@ -99,6 +69,7 @@ my $xmlend;
 my @text;
 my @content;
 my %ids;
+my %includes;
 my $text_ref;
 my %block_depths;
 my $current_parse_self;
@@ -151,6 +122,7 @@ sub init {
 	@text = ();
 	@content = ();
 	%ids = ();
+	%includes = ();
 	$text_ref = undef;
 	%block_depths = ();
 }
@@ -235,6 +207,7 @@ sub final {
 	$current_parse_self->{text} = [@text];
 	$current_parse_self->{content} = [@content];
 	$current_parse_self->{ids} = {%ids};
+	$current_parse_self->{includes} = {%includes};
 }
 
 sub start {
@@ -271,6 +244,10 @@ sub start {
 			die sprintf 'duplicate id %s: %s%s', $loc, $id, "\n";
 		}
 		$ids{$id} = {idx => $#content, type => $anchor_tag};
+
+		if ($anchor_tag eq 'include') {
+			$includes{$id} = 1;
+		}
 	}
 	else {
 		dhandler(@_);
