@@ -46,15 +46,45 @@ sub new {
 
 # to be used in the "include" process
 sub resolve {
-	my $self = shift; # Template::Anchor to be inserted into
+	my $self = shift; # Template to be resolved
 	my $set = shift;
+	my $include_ids_seen = shift;
+	$include_ids_seen ||= {};
 
-	my $ids = $self->{ids};
+	my @includes = $self->includes();
 
+	unless (@includes) {
+		# Template contains no includes so return unchanged
+		# clone here ?
+		return $self;
+	}
+
+	foreach my $include_id (@includes) {
+		if ($include_ids_seen->{$include_id}) {
+			$LOG->warn("circular reference:$include_id");
+			return undef
+		}
+
+		my $template = $set->get($include_id);
+		unless ($template) {
+			$LOG->warn("include id:$include_id: not found");
+			return undef;
+		}
+
+		my $new_template = $template->resolve($set, $include_ids_seen);
+		return undef unless $new_template;
+
+		$include_ids_seen->{$include_id} = 1;
+
+		# Now we need to add this templates content to
+		# the current template
+
+	}
 }
 
 sub includes {
 	my $self = shift;
+	return keys (%{$self->{includes}});
 }
 
 

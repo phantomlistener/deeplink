@@ -13,6 +13,15 @@ sub add {
 	$self->{$id} = $template;
 }
 
+sub get {
+	my $self = shift;
+	my $id = shift;
+
+	return $self->{$id};
+}
+
+# Resolve a given template in the set
+# Returns the Template result with all includes resolved
 sub resolve {
 	my $self = shift;
 	my $id = shift;
