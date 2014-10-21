@@ -62,23 +62,31 @@ sub resolve {
 	foreach my $include_id (@includes) {
 		if ($include_ids_seen->{$include_id}) {
 			$LOG->warn("circular reference:$include_id");
+			# bail out here!
 			return undef
 		}
 
 		my $template = $set->get($include_id);
 		unless ($template) {
 			$LOG->warn("include id:$include_id: not found");
+			# bail out here!
 			return undef;
 		}
 
 		my $new_template = $template->resolve($set, $include_ids_seen);
+		# One of the above failures has occured
+		# so bail out here
 		return undef unless $new_template;
 
+		# got the new template
 		$include_ids_seen->{$include_id} = 1;
 
 		# Now we need to add this templates content to
 		# the current template
-
+		# add text to end of text
+		# capture new index offset
+		# copy ids update indexes with offset
+		Template::Anchor::Utils::get_block_copy($template_id);
 	}
 }
 
