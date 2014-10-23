@@ -86,7 +86,8 @@ sub resolve {
 		# add text to end of text
 		# capture new index offset
 		# copy ids update indexes with offset
-		Template::Anchor::Utils::get_block_copy($template_id);
+
+		# Template::Anchor::Utils::get_block_copy($template_id);
 	}
 }
 
@@ -106,8 +107,8 @@ my $xmldecl;
 my $xmlend;
 my @text;
 my @content;
+my @includes;
 my %ids;
-my %includes;
 my $text_ref;
 my %block_depths;
 my $current_parse_self;
@@ -159,8 +160,8 @@ sub init {
 	$xmlend = '';
 	@text = ();
 	@content = ();
+	@includes = ();
 	%ids = ();
-	%includes = ();
 	$text_ref = undef;
 	%block_depths = ();
 }
@@ -232,6 +233,16 @@ sub process_attributes {
 		my $id = $attr{'id'};
 		die "missing id in anchor tag: $type: $string\n" unless ($id && $type eq 'start');
 
+		if ($anchor_tag eq 'include') {
+			# include is the id of an include template
+			# id is the id of the block to be included
+			my $include_attr = {};
+			$event->{include} = $include_attr;
+			foreach my $attr (qw(id blockid prefix replaceid)) {
+				$include_attr->{$attr} = $attr{$attr} if $attr{$attr};
+			}
+		}
+
 		$event->{id} = $id;
 		$event->{anchor_tag} = $anchor_tag;
 	}
@@ -244,8 +255,8 @@ sub final {
 	$current_parse_self->{xmlend} = $xmlend;
 	$current_parse_self->{text} = [@text];
 	$current_parse_self->{content} = [@content];
+	$current_parse_self->{includes} = [@includes];
 	$current_parse_self->{ids} = {%ids};
-	$current_parse_self->{includes} = {%includes};
 }
 
 sub start {
@@ -275,16 +286,20 @@ sub start {
 		my $id = $event->{id};
 
 		new_add_push($event);
-		push @content, {type => $anchor_tag, id => $id}; #, idx => $#text};
-		if ($ids{$id}) {
-			my $p = $_[0];
-			my $loc = _parse_error_location($p);
-			die sprintf 'duplicate id %s: %s%s', $loc, $id, "\n";
-		}
-		$ids{$id} = {idx => $#content, type => $anchor_tag};
-
 		if ($anchor_tag eq 'include') {
-			$includes{$id} = 1;
+			push @content, {type => $anchor_tag, %{$event->{include}}};
+			$event->{include}->{idx} = $#content;
+			push @includes, $event->{include};
+		}
+		else {
+			# only var ids now
+			if ($ids{$id}) {
+				my $p = $_[0];
+				my $loc = _parse_error_location($p);
+				die sprintf 'duplicate id %s: %s%s', $loc, $id, "\n";
+			}
+			push @content, {type => $anchor_tag, id => $id};
+			$ids{$id} = {idx => $#content, type => $anchor_tag};
 		}
 	}
 	else {
