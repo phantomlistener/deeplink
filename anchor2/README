@@ -15,6 +15,9 @@ how about ->out(id)
 just do an out on a specific id?
 
 include
+<anc:include id="tpl.xyz" blockid="abc" prefix="pre_" replaceid="mno"/>
+
+	id => template id
 	source_id = <block id>
 	prefix = "pre_" every id in block is prefixed
 	replace_id = replace id with this id
