@@ -48,8 +48,8 @@ sub new {
 sub resolve {
 	my $self = shift; # Template to be resolved
 	my $set = shift;
-	my $include_ids_seen = shift;
-	$include_ids_seen ||= {};
+	my $include_block_ids_seen = shift;
+	$include_block_ids_seen ||= {};
 
 	my @includes = $self->includes();
 
@@ -59,8 +59,11 @@ sub resolve {
 		return $self;
 	}
 
-	foreach my $include_id (@includes) {
-		if ($include_ids_seen->{$include_id}) {
+	foreach my $include (@includes) {
+		my $template_id = $include->{id};
+		my $block_id = $include->{blockid};
+
+		if ($include_block_ids_seen->{$block_id}) {
 			$LOG->warn("circular reference:$include_id");
 			# bail out here!
 			return undef
@@ -73,13 +76,13 @@ sub resolve {
 			return undef;
 		}
 
-		my $new_template = $template->resolve($set, $include_ids_seen);
+		my $new_template = $template->resolve($set, $include_block_ids_seen);
 		# One of the above failures has occured
 		# so bail out here
 		return undef unless $new_template;
 
 		# got the new template
-		$include_ids_seen->{$include_id} = 1;
+		$include_block_ids_seen->{$include_id} = 1;
 
 		# Now we need to add this templates content to
 		# the current template
@@ -93,7 +96,7 @@ sub resolve {
 
 sub includes {
 	my $self = shift;
-	return keys (%{$self->{includes}});
+	return( @{$self->{includes}} );
 }
 
 
