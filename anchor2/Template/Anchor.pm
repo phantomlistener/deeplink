@@ -90,7 +90,7 @@ sub resolve {
 		# capture new index offset
 		# copy ids update indexes with offset
 
-		# Template::Anchor::Utils::get_block_copy($template_id);
+		Template::Anchor::Utils::get_block_copy($template, $block_id);
 	}
 }
 
