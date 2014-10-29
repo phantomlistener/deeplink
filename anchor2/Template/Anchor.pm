@@ -64,14 +64,14 @@ sub resolve {
 		my $block_id = $include->{blockid};
 
 		if ($include_block_ids_seen->{$block_id}) {
-			$LOG->warn("circular reference:$include_id");
+			$LOG->warn("circular reference:$block_id");
 			# bail out here!
 			return undef
 		}
 
-		my $template = $set->get($include_id);
+		my $template = $set->get($template_id);
 		unless ($template) {
-			$LOG->warn("include id:$include_id: not found");
+			$LOG->warn("template id:$template_id: not found");
 			# bail out here!
 			return undef;
 		}
@@ -82,7 +82,7 @@ sub resolve {
 		return undef unless $new_template;
 
 		# got the new template
-		$include_block_ids_seen->{$include_id} = 1;
+		$include_block_ids_seen->{$block_id} = 1;
 
 		# Now we need to add this templates content to
 		# the current template
