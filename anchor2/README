@@ -60,3 +60,22 @@ list of templates - each template needs need a top level unique root id
 Template::DeepLink::Set
 
 
+Template::Anchor structure:
+file -> "min3.xml"
+root_id -> "root"
+xmldecl -> <?xml version="1.0"?>
+xmlend -> ''
+content ->  array of hashes [ idx, id, type]
+     idx = index into text array
+     id = root_id, var_id
+     type = "block_start | block | block_end | include | var
+
+ids -> hash of ids 
+	{ [idx | start, end],  type }
+		start = start content index
+                end = end content index
+		idx = one content index (start = end)
+                type = block | var
+includes -> list of includes from content
+
+
