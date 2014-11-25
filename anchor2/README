@@ -76,6 +76,8 @@ ids -> hash of ids
                 end = end content index
 		idx = one content index (start = end)
                 type = block | var
+text -> array of text content [  .... 
+
 includes -> list of includes from content
 
 
