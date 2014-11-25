@@ -11,21 +11,28 @@ Template::Anchor::Logger::info_level();
 
 my $t = Template::Anchor->new(file => $file, root_id => 'root');
 
-print Dumper \$t if $t;
+my @copy = Template::Anchor::Utils::get_block_copy($t, 'b');
 
-my $inst = $t->instance();
+print Dumper \@copy if @copy;
+
+my $i = 0;
+map {print "$i => " . $_ . "\n"; $i++} @{$t->{text}};
+
+#print Dumper \$t if $t;
+
+#my $inst = $t->instance();
 
 #print Dumper $inst;
 
 
-$inst->set_var('v', '> first V');
+#$inst->set_var('v', '> first V');
 
-$inst->do('x');
+#$inst->do('x');
 
 #$inst->set_var('v', '> second V');
 
 
-print $inst->out() . "\n";
-print $inst->out('x') . "\n";
+#print 'out ->> ' . $inst->out() . "\n";
+#print 'out-x ->> ' . $inst->out('x') . "\n";
 
 

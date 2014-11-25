@@ -521,4 +521,7 @@ sub get_block_copy {
 	return @copy;
 }
 
+sub include {
+}
+
 1;
